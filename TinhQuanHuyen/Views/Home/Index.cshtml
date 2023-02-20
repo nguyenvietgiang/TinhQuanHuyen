@@ -1,0 +1,48 @@
+﻿@using System.Data
+@model ProvinceResponseModelPagination;
+
+
+<h2>Danh Sách Tỉnh Thành Việt Nam</h2>
+<form action="">
+    <label for="cars">Chọn Tỉnh Thành:</label>
+    <select name="province" id="province">
+        @foreach (ProvinceResponseModel row in Model.Content)
+        {
+        <option value="@row.Id">@row.Name</option>
+        }
+    </select>
+    <select name="distric" id="distric">
+            <option value="">Quận</option>
+    </select>
+    <select name="town" id="town">
+            <option value="">Phường Xã</option>
+    </select>
+    <br><br>
+    <input type="submit" value="Submit">
+</form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#CategoryType").change(function () {
+            $("#SubCategory").empty();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetSubCategories")',
+                dataType: 'json',
+                data: { id: $("#CategoryType").val() },
+                success: function (subcategories) {
+                    $.each(subcategories, function (i, subcategory) {
+                        $("#SubCategory").append('<option value="'
+                            + subcategory.Value + '">' +
+                            subcategory.Text + '</option>');
+                    });
+                },
+                error: function (ex) {
+                    alert('Failed to retrieve Sub Categories : ' + ex);
+                }
+            });
+            return false;
+        })
+    });
+</script>
+

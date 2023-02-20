@@ -1,0 +1,163 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<div class="block-prv">
+    <div class="content-select">
+        <div class="block">
+            <label for="selectedProvinces">Tỉnh/Thành phố</label>
+            <select id="selectedProvinces" onchange="getDistrict(value)">
+                <option value="">Chọn tỉnh thành</option>
+            </select>
+        </div>
+        <div class="block">
+            <label for="selectedDistrict">Quận/Huyện</label>
+            <select id="selectedDistrict" onchange="getWard()">
+                <option value="">Chọn quận huyện</option>
+            </select>
+        </div>
+
+        <div class="block">
+            <label for="selectedWarn">Phường Xã</label>
+            <select id="selectedWarn">
+                <option value="">Chọn phường xã</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="parent">
+    <button class="btn-gradient-2" onclick="handle()">Submit</button>
+</div>
+
+<h2 class="text-result"></h2>
+
+
+
+<style>
+    .btn-gradient-2 {
+        background: linear-gradient(white, white) padding-box, linear-gradient(to right, darkblue, darkorchid) border-box;
+        border-radius: 50em;
+        border: 4px solid transparent;
+    }
+
+    .btn-gradient-2 {
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1em;
+        color: darkblue;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    select {
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 200px;
+    }
+
+    .block-prv {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .content-select {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .block {
+        margin-left: 15px;
+    }
+
+    .text-result {
+        text-align: center;
+    }
+</style>
+<script>
+    var select = document.querySelector('#selectedProvinces');
+    var selectDistrict = document.querySelector('#selectedDistrict');
+    var selectedWarn = document.querySelector('#selectedWarn');
+    const BASE_URL = 'http://dev.s-erp.com.vn:9038/v1/countries/VN/provinces';
+
+    function getProvinces() {
+        fetch(`${BASE_URL}?page=1&size=66`)
+            .then(response => response.json())
+            .then(data => {
+                data.data.content.forEach(country => {
+                    select.options[select.options.length] = new Option(country.name, country.id);
+                });
+            })
+            .catch(error => console.error(error));
+    }
+
+    function getDistrict(id) {
+        while (selectDistrict.options.length > 1) {
+            selectDistrict.remove(1);
+        }
+        fetch(`${BASE_URL}/${id}/districts`)
+            .then(response => response.json())
+            .then(data => {
+                data.data.content.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.id;
+                    option.textContent = country.name;
+                    selectDistrict.add(option);
+                });
+            })
+            .catch(error => console.error(error));
+    }
+
+    function getWard() {
+        this.getCountry(select.value, selectDistrict.value);
+    }
+
+    function getCountry(idProvinces, idDistrict) {
+        if (!idProvinces && !idDistrict) {
+            return;
+        }
+        while (selectedWarn.options.length > 1) {
+            selectedWarn.remove(1);
+        }
+
+        fetch(`${BASE_URL}/${idProvinces}/districts/${idDistrict}/wards`)
+            .then(response => response.json())
+            .then(data => {
+                data.data.content.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.id;
+                    option.textContent = country.name;
+                    selectedWarn.add(option);
+                });
+            })
+            .catch(error => console.error(error));
+    }
+
+    function main() {
+        getProvinces();
+    }
+
+    function handle() {
+        var resultText = document.querySelector(".text-result");
+
+        resultText.innerHTML = " Tỉnh " + select.options[select.selectedIndex].text + " Huyện " +
+            selectDistrict.options[selectDistrict.selectedIndex].text + " Phường " +
+            selectedWarn.options[selectedWarn.selectedIndex].text
+    }
+
+    main();
+</script>
+
+
