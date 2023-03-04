@@ -1,18 +1,45 @@
-﻿
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
 <div class="block-prv">
     <div class="content-select">
         <div class="block">
-            <label for="selectedTimezones">Múi Giờ</label>
+            <label for="selectedProvinces">Tỉnh/Thành phố</label>
             <div class="dropdown-container">
                 <div class="input-select">
-                    <input type="text" placeholder="Chọn múi giờ" id="timezone-input" />
+                    <input type="text" placeholder="Chọn tỉnh thành" id="timezone-input" />
+                    <img class="arrow-down-icon" src="~/icons/arrow-down.svg" alt="icon" width="12px" />
                 </div>
-                <div class="dropdown-options" id="selectedTimezones">
+                <div class="dropdown-options" id="selectedProvinces">
                 </div>
             </div>
         </div>
+
+        <div class="block">
+            <label for="selectedDistrict">Quận/Huyện</label>
+            <select id="selectedDistrict" onchange="getWard()">
+                <option value="">Chọn quận huyện</option>
+            </select>
+        </div>
+
+        <div class="block">
+            <label for="selectedWarn">Phường Xã</label>
+            <select id="selectedWarn">
+                <option value="">Chọn phường xã</option>
+            </select>
+        </div>
     </div>
 </div>
+
+<div class="parent">
+    <button class="btn-gradient-2" onclick="handle()">Submit</button>
+</div>
+
+<h2 class="text-result"></h2>
+
+
+
 <style>
     .dropdown-container {
         position: relative;
@@ -156,9 +183,12 @@
     }
 </style>
 <script>
-    const selectTimezone = document.querySelector('#selectedTimezones');
-    const TimezoneInput = document.querySelector('#timezone-input');
-    const BASE_URL = 'http://dev.s-erp.com.vn:9038/v1/timezones';
+
+    const selectProvince = document.querySelector('#selectedProvinces');
+    const provinceInput = document.querySelector('#timezone-input');
+    const selectDistrict = document.querySelector('#selectedDistrict');
+    const selectedWarn = document.querySelector('#selectedWarn');
+    const BASE_URL = 'http://dev.s-erp.com.vn:9038/v1/countries/VN/provinces';
 
     function html([first, ...strings], ...values) {
         return values.reduce(
@@ -168,50 +198,107 @@
             .filter(x => x && x !== true || x === 0)
             .join("")
     }
-    function renderTimezone(data) {
-        let TimezoneHtml = html`
+
+    function renderProvince(data) {
+        let provinceHtml = html`
           ${data.map(item => `
               <div class="option" onmousedown="getDistrict(${item.id}, '${item.name}')"> ${item.name} </div>`
         )
             }
         `;
-        selectTimezone.innerHTML = TimezoneHtml;
+        selectProvince.innerHTML = provinceHtml;
     }
-    async function getTimezones() {
-        const response = await fetch(`${BASE_URL}?page=1&size=73`);
+
+    async function getProvinces() {
+        const response = await fetch(`${BASE_URL}?page=1&size=66`);
         const { data, code } = await response.json();
         if (data && code === 200) {
-            TimezoneData = data.content;
-            return TimezoneData;
+            provinceData = data.content;
+            return provinceData;
         }
     }
-    async function getTimezoneDataAsync() {
-        const data = await getTimezones();
-        renderTimezone(data);
+
+    async function getProvinceDataAsync() {
+        const data = await getProvinces();
+        renderProvince(data);
     }
-    async function handleSearchTimezone() {
-        const data = await getTimezones();
-        TimezoneInput.addEventListener('keyup', event => {
+
+    async function handleSearchProvince() {
+        const data = await getProvinces();
+        provinceInput.addEventListener('keyup', event => {
             const keyword = event.target.value.toLowerCase();
             const newData = data.filter(item => item.name.toLowerCase().includes(keyword));
-            renderTimezone(newData);
+            renderProvince(newData);
         })
     }
+
     async function handleFocus() {
-        const data = await getTimezones();
-        TimezoneInput.addEventListener('focus', event => {
-            const keyword = TimezoneInput.value;
+        const data = await getProvinces();
+        provinceInput.addEventListener('focus', event => {
+            const keyword = provinceInput.value;
             const newData = data.filter(item => item.name.toLowerCase().includes(keyword));
-            renderTimezone(newData);
+            renderProvince(newData);
         })
     }
+
+    function getDistrict(id, name) {
+        provinceInput.value = name;
+        while (selectDistrict.options.length > 1) {
+            selectDistrict.remove(1);
+        }
+        fetch(`${BASE_URL}/${id}/districts`)
+            .then(response => response.json())
+            .then(data => {
+                data.data.content.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.id;
+                    option.textContent = country.name;
+                    selectDistrict.add(option);
+                });
+            })
+            .catch(error => console.error(error));
+    }
+
+    function getWard() {
+        this.getCountry(select.value, selectDistrict.value);
+    }
+
+    function getCountry(idProvinces, idDistrict) {
+        if (!idProvinces && !idDistrict) {
+            return;
+        }
+        while (selectedWarn.options.length > 1) {
+            selectedWarn.remove(1);
+        }
+
+        fetch(`${BASE_URL}/${idProvinces}/districts/${idDistrict}/wards`)
+            .then(response => response.json())
+            .then(data => {
+                data.data.content.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.id;
+                    option.textContent = country.name;
+                    selectedWarn.add(option);
+                });
+            })
+            .catch(error => console.error(error));
+    }
+
+    function handle() {
+        var resultText = document.querySelector(".text-result");
+        resultText.innerHTML = " Tỉnh " + select.options[select.selectedIndex].text + " Huyện " +
+            selectDistrict.options[selectDistrict.selectedIndex].text + " Phường " +
+            selectedWarn.options[selectedWarn.selectedIndex].text
+    }
+
     function main() {
-        getTimezones();
-        getTimezoneDataAsync();
-        handleSearchTimezone();
+        getProvinces();
+        getProvinceDataAsync();
+        handleSearchProvince();
         handleFocus();
     }
-    main();
-</script>
 
+    main();
+
+</script>
 
