@@ -1,18 +1,51 @@
-﻿
+﻿@using System.Data
+@model TimezoneResponsePaginationModel;
+
 <div class="block-prv">
     <div class="content-select">
         <div class="block">
             <label for="selectedTimezones">Múi Giờ</label>
             <div class="dropdown-container">
+                <form class="form-inline my-2 my-lg-0" style="display: flex">
                 <div class="input-select">
-                    <input type="text" placeholder="Chọn múi giờ" id="timezone-input" />
+                        <input type="text" value="@ViewBag.FullTextSearch" name="FullTextSearch" placeholder="Chọn múi giờ" id="timezone-input" />
                 </div>
+                <div>
+                   <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm</button>
+                </div>
+                </form>
                 <div class="dropdown-options" id="selectedTimezones">
                 </div>
             </div>
         </div>
     </div>
 </div>
+<div id="btnContainer">
+    <button class="btn" onclick="listView()"><i class="fa fa-bars"></i> List</button>
+    <button class="btn active" onclick="gridView()"><i class="fa fa-th-large"></i> Grid</button>
+
+</div>
+<br>
+
+<div class="row">
+    @foreach (TimezoneResponseModel row in Model.Content)
+    {
+        <div class="column">
+            <a href="#@row.Code">
+                <h2>@row.Name</h2>
+            </a>
+            <p>@row.Description</p>
+            <p>@row.CreatedOnDate</p>
+        </div>
+    }
+</div>
+@for (int i = 1; i <= ViewBag.TotolPage; i++)
+{
+    <div class="pagination">
+        <a href="@Url.Action("TimeZone","Home")?Page=@i">@i</a>
+    </div>
+}
+
 <style>
     .dropdown-container {
         position: relative;
@@ -171,7 +204,7 @@
     function renderTimezone(data) {
         let TimezoneHtml = html`
           ${data.map(item => `
-              <div class="option" onmousedown="getDistrict(${item.id}, '${item.name}')"> ${item.name} </div>`
+                  <div class="option" onmousedown="getTime(${item.code}, '${item.name}')"> ${item.code} - ${item.name} </div>`
         )
             }
         `;
@@ -193,7 +226,7 @@
         const data = await getTimezones();
         TimezoneInput.addEventListener('keyup', event => {
             const keyword = event.target.value.toLowerCase();
-            const newData = data.filter(item => item.name.toLowerCase().includes(keyword));
+            const newData = data.filter(item => item.code.toLowerCase().includes(keyword));
             renderTimezone(newData);
         })
     }
@@ -201,7 +234,7 @@
         const data = await getTimezones();
         TimezoneInput.addEventListener('focus', event => {
             const keyword = TimezoneInput.value;
-            const newData = data.filter(item => item.name.toLowerCase().includes(keyword));
+            const newData = data.filter(item => item.code.toLowerCase().includes(keyword));
             renderTimezone(newData);
         })
     }

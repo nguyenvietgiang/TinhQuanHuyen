@@ -1,4 +1,4 @@
-namespace TinhQuanHuyen.Models
+namespace BaitapDemo.Models
 {
     public class ErrorViewModel
     {

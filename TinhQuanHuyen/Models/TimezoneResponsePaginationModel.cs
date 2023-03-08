@@ -1,6 +1,6 @@
-﻿namespace TinhQuanHuyen.Models
+﻿namespace BaitapDemo.Models
 {
-    public class ProvinceResponseModelPagination
+    public class TimezoneResponsePaginationModel
     {
         public int CurrentPage { get; set; }
 
@@ -11,6 +11,6 @@
         public int NumberOfRecords { get; set; }
         public int TotalRecords { get; set; }
 
-        public List<ProvinceResponseModel> Content { get; set; }
+        public List<TimezoneResponseModel> Content { get; set; }
     }
 }

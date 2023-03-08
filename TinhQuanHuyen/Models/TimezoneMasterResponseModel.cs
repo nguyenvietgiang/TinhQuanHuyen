@@ -1,6 +1,6 @@
-﻿namespace TinhQuanHuyen.Models
+﻿namespace BaitapDemo.Models
 {
-    public class ProvinceMasterResponseModel
+    public class TimezoneMasterResponseModel
     {
         public int Code { get; set; }
 
@@ -8,6 +8,7 @@
 
         public int TotalTime { get; set; }
 
-        public ProvinceResponseModelPagination Data { get; set; }
+        public TimezoneResponsePaginationModel Data { get; set; }
+
     }
 }

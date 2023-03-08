@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    Layout = "";
 }
 
 <div class="block-prv">
@@ -107,7 +108,7 @@
         while (selectDistrict.options.length > 1) {
             selectDistrict.remove(1);
         }
-        fetch(`${BASE_URL}/${id}/districts`)
+        fetch(`${BASE_URL}/${id}/districts?page=1&size=40`)
             .then(response => response.json())
             .then(data => {
                 data.data.content.forEach(country => {
@@ -132,7 +133,7 @@
             selectedWarn.remove(1);
         }
 
-        fetch(`${BASE_URL}/${idProvinces}/districts/${idDistrict}/wards`)
+        fetch(`${BASE_URL}/${idProvinces}/districts/${idDistrict}/wards?page=1&size=40`)
             .then(response => response.json())
             .then(data => {
                 data.data.content.forEach(country => {
